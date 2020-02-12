@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { __ as NO__ } from '@wordpress/i18n';
 import { BlockEditProps } from '@wordpress/blocks';
 import { useSelect } from '@wordpress/data';
 import React, { FunctionComponent } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
+import { useI18n } from '@automattic/react-i18n';
 
 /**
  * Internal dependencies
@@ -24,6 +24,7 @@ import VerticalBackground from './vertical-background';
 import Link from '../components/link';
 
 const OnboardingEdit: FunctionComponent< BlockEditProps< Attributes > > = () => {
+	const { __: NO__ } = useI18n();
 	const { siteVertical, siteTitle, selectedDesign, isCreatingSite } = useSelect( select =>
 		select( STORE_KEY ).getState()
 	);
