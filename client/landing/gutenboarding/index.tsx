@@ -48,7 +48,7 @@ const CalypsoI18n: FunctionComponent = ( { children } ) => {
 	( window as any ).changeLocale = setLocale;
 
 	return (
-		<I18nProvider locale={ locale } onLocaleChange={ getLocale }>
+		<I18nProvider locale={ locale } loadLocaleData={ getLocale }>
 			{ children }
 		</I18nProvider>
 	);
