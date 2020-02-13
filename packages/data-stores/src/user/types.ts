@@ -7,6 +7,7 @@ export interface CurrentUser {
 	ID: number;
 	display_name: string;
 	username: string;
+	language: string;
 }
 
 export interface NewUser {
