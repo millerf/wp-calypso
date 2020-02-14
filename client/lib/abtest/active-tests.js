@@ -97,17 +97,6 @@ export default {
 		defaultVariation: 'variantShowUpdates',
 		allowExistingUsers: true,
 	},
-	showBusinessPlanPopular: {
-		datestamp: '20200109',
-		variations: {
-			variantShowBizPopular: 50,
-			control: 50,
-		},
-		defaultVariation: 'control',
-		allowExistingUsers: true,
-		localeTargets: 'any',
-		localeExceptions: [ 'en' ],
-	},
 	readerFreeToPaidPlanNudge: {
 		datestamp: '20200102',
 		variations: {
