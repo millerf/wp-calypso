@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { find } from 'lodash';
-
-/**
  * Internal dependencies
  */
 import { PLANS_LIST } from 'lib/plans/plans-list';
@@ -16,13 +11,14 @@ import canUpgradeToPlan from 'state/selectors/can-upgrade-to-plan';
  * @param  {object}   state      Global state tree
  * @param  {number}   siteId     The site we're interested in upgrading
  * @param  {string}   path       The path fragment indicating the plan we want to upgrade to
- * @returns {string}              The plan slug that corresponds to the given path, or null if the site cannot be upgraded
+ * @returns {string|null}        The plan slug that corresponds to the given path, or null if the site cannot be upgraded or the plans are not populated
  */
 export default function getUpgradePlanSlugFromPath( state, siteId, path ) {
-	return find(
-		Object.keys( PLANS_LIST ),
-		planKey =>
-			( planKey === path || getPlanPath( planKey ) === path ) &&
-			canUpgradeToPlan( state, siteId, planKey )
+	return (
+		Object.keys( PLANS_LIST ).find(
+			planKey =>
+				( planKey === path || getPlanPath( planKey ) === path ) &&
+				canUpgradeToPlan( state, siteId, planKey )
+		) || null
 	);
 }
