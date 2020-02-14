@@ -4,10 +4,11 @@
 import '@automattic/calypso-polyfills';
 import { I18nProvider } from '@automattic/react-i18n';
 import { getLanguageFile } from '../../lib/i18n-utils/switch-locale';
-import React, { useState, FunctionComponent } from 'react';
+import * as React from 'react';
 import ReactDom from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import config from '../../config';
+import { subscribe, select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -15,46 +16,63 @@ import config from '../../config';
 import { Gutenboard } from './gutenboard';
 import { setupWpDataDebug } from './devtools';
 import accessibleFocus from 'lib/accessible-focus';
+import { USER_STORE } from './stores/user';
+
 /**
  * Style dependencies
  */
 import 'assets/stylesheets/gutenboarding.scss';
 import 'components/environment-badge/style.scss';
 
-window.AppBoot = () => {
+window.AppBoot = async () => {
 	if ( ! config.isEnabled( 'gutenboarding' ) ) {
 		window.location.href = '/';
-	} else {
-		setupWpDataDebug();
-
-		// Add accessible-focus listener.
-		accessibleFocus();
-
-		ReactDom.render(
-			<CalypsoI18n>
-				<BrowserRouter basename="gutenboarding">
-					<Gutenboard />
-				</BrowserRouter>
-			</CalypsoI18n>,
-			document.getElementById( 'wpcom' )
-		);
+		return;
 	}
-};
+	setupWpDataDebug();
 
-const CalypsoI18n: FunctionComponent = ( { children } ) => {
-	const [ locale, setLocale ] = useState< string >( config( 'i18n_default_locale_slug' ) );
+	// Add accessible-focus listener.
+	accessibleFocus();
 
-	// TODO: Hack for demonstration
-	( window as any ).changeLocale = setLocale;
+	let unsubscribe = () => undefined;
+	const locale = await new Promise< string >( resolve => {
+		if ( window.currentUser ) {
+			resolve( window.currentUser.language );
+		}
 
-	return (
-		<I18nProvider locale={ locale } loadLocaleData={ getLocale }>
-			{ children }
-		</I18nProvider>
+		select( USER_STORE ).getCurrentUser();
+		unsubscribe = subscribe( () => {
+			const currentUser = select( USER_STORE ).getCurrentUser();
+			if ( currentUser ) {
+				resolve( currentUser.language );
+			}
+			if ( ! select( 'core/data' ).isResolving( USER_STORE, 'getCurrentUser' ) ) {
+				resolve( config( 'i18n_default_locale_slug' ) );
+			}
+		} ) as any;
+	} );
+	unsubscribe();
+	const localeData = await new Promise< object >( resolve => {
+		if ( window.i18nLocaleStrings ) {
+			try {
+				const bootstrappedLocaleData = JSON.parse( window.i18nLocaleStrings );
+				return resolve( bootstrappedLocaleData );
+			} catch {}
+		}
+		getLocaleData( locale ).then( resolve );
+	} );
+
+	ReactDom.render(
+		<I18nProvider locale={ locale } localeData={ localeData }>
+			<BrowserRouter basename="gutenboarding">
+				<Gutenboard />
+			</BrowserRouter>
+		</I18nProvider>,
+		document.getElementById( 'wpcom' )
 	);
 };
 
-async function getLocale( locale: string ) {
+async function getLocaleData( locale: string ) {
 	if ( ! locale || locale === config( 'i18n_default_locale_slug' ) ) {
 		return {};
 	}
