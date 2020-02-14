@@ -166,7 +166,7 @@ interface BackButtonProps extends I18nProps {
 
 /* eslint-disable wpcalypso/jsx-classname-namespace */
 const BackButton = withI18n(
-	class C extends React.PureComponent< BackButtonProps > {
+	class C extends React.Component< BackButtonProps > {
 		render() {
 			const { __: NO__ } = this.props;
 			return (
