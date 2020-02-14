@@ -22,7 +22,10 @@ export type StepType = ValuesType< typeof Step >;
 
 export function usePath( step: StepType | undefined, lang?: string ) {
 	const match = useRouteMatch< { lang?: string } >( path );
-	lang = lang || match?.params.lang;
+
+	// When lang is null, remove lang.
+	// When lang is empty or undefined, get lang from route param.
+	lang = lang === null ? '' : lang || match?.params.lang;
 
 	// When step is undefined (coming from <Link>).
 	if ( ! step ) {
