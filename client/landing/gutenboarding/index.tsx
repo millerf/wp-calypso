@@ -2,7 +2,7 @@
  * External dependencies
  */
 import '@automattic/calypso-polyfills';
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import ReactDom from 'react-dom';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import config from '../../config';
@@ -13,13 +13,23 @@ import config from '../../config';
 import { Gutenboard } from './gutenboard';
 import { setupWpDataDebug } from './devtools';
 import accessibleFocus from 'lib/accessible-focus';
-import { path, steps, langs, makePath, Step } from './path';
+import { path, steps, langs, usePath, Step, StepType } from './path';
 
 /**
  * Style dependencies
  */
 import 'assets/stylesheets/gutenboarding.scss';
 import 'components/environment-badge/style.scss';
+
+interface Props {
+	step: StepType;
+	lang?: string | undefined;
+}
+
+const RedirectFallback: FunctionComponent< Props > = ( { step, lang } ) => {
+	const fallbackPath = usePath( step, lang );
+	return <Redirect to={ fallbackPath } />;
+};
 
 window.AppBoot = () => {
 	if ( ! config.isEnabled( 'gutenboarding' ) ) {
@@ -39,13 +49,13 @@ window.AppBoot = () => {
 					<Route
 						exact
 						path={ `/:step(${ steps.join( '|' ) })/:garbage?` }
-						render={ ( { match } ) => <Redirect to={ makePath( match.params.step ) } /> }
+						render={ ( { match } ) => <RedirectFallback step={ match.params.step } /> }
 					/>
 					<Route
 						exact
 						path={ `/:garbage?/:lang(${ langs.join( '|' ) })?` }
 						render={ ( { match } ) => (
-							<Redirect to={ makePath( Step.IntentGathering, match.params.lang ) } />
+							<RedirectFallback step={ Step.IntentGathering } lang={ match.params.lang } />
 						) }
 					/>
 					<Route>

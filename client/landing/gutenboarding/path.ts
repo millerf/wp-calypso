@@ -20,14 +20,17 @@ export const path = `/:step(${ steps.join( '|' ) })/:lang(${ langs.join( '|' ) }
 
 export type StepType = ValuesType< typeof Step >;
 
-export function makePath( step: StepType | undefined, lang?: string ) {
+export function usePath( step: StepType | undefined, lang?: string ) {
+	const match = useRouteMatch< { lang?: string } >( path );
+	lang = lang || match?.params.lang;
+
+	// When step is undefined (coming from <Link>).
+	if ( ! step ) {
+		return '/' + ( lang && langs.includes( lang ) ? lang : '' );
+	}
+
 	return generatePath( path, {
 		step,
 		...( lang && langs.includes( lang ) && { lang } ),
 	} );
-}
-
-export function usePath( step: StepType | undefined, lang?: string ) {
-	const match = useRouteMatch< { lang?: string } >( path );
-	return makePath( step, lang || match?.params.lang );
 }
