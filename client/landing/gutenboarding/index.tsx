@@ -59,7 +59,7 @@ window.AppBoot = () => {
 						) }
 					/>
 					<Route>
-						<Redirect to="/" />
+						<RedirectFallback step={ Step.IntentGathering } />
 					</Route>
 				</Switch>
 			</BrowserRouter>,
